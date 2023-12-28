@@ -1,44 +1,85 @@
-﻿namespace Ex_21
+﻿namespace Ex_20
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Ghiceste numarul intre 1 si 1024!");
-            int numarAles = GhicesteNumarul(1, 1024);
-            Console.WriteLine($"Numarul ales este: {numarAles}");
+            Console.Write("Introduceti numaratorul (m): ");
+            int m = Convert.ToInt32(Console.ReadLine());
+
+            Console.Write("Introduceti numitorul (n): ");
+            int n = Convert.ToInt32(Console.ReadLine());
+
+            Console.WriteLine($"Rezultatul fractiei {m}/{n} in format zecimal este: {ConvertFractionToDecimal(m, n)}");
+            Console.WriteLine($"Tipul de fractie este: {DetermineFractionType(n)}");
         }
 
-        static int GhicesteNumarul(int limitaInferioara, int limitaSuperioara)
+        static string ConvertFractionToDecimal(int m, int n)
         {
-            Console.WriteLine($"Numarul este mai mare sau egal cu {limitaInferioara}? (da/nu)");
-            string raspuns = Console.ReadLine();
+            
+            string result = (m / n).ToString() + ".";
+            long remainder = m % n;
+            var remainderPositions = new System.Collections.Generic.Dictionary<long, int>();
+            var decimalPart = new System.Text.StringBuilder();
+      
+            int position = 0;
 
-            if (raspuns.ToLower() == "da")
+            while (remainder != 0 && !remainderPositions.ContainsKey(remainder))
             {
-                if (limitaInferioara == limitaSuperioara)
-                {
-                    return limitaInferioara;
-                }
+                remainderPositions.Add(remainder, position);
 
-                int mijloc = (limitaInferioara + limitaSuperioara) / 2;
-                return GhicesteNumarul(mijloc, limitaSuperioara);
+                remainder *= 10;
+                long quotient = remainder / n;
+                decimalPart.Append(quotient);
+
+                remainder = remainder % n;
+
+                position++;
             }
-            else if (raspuns.ToLower() == "nu")
-            {
-                if (limitaInferioara == limitaSuperioara)
-                {
-                    return limitaInferioara + 1;
-                }
 
-                int mijloc = (limitaInferioara + limitaSuperioara) / 2 + 1;
-                return GhicesteNumarul(limitaInferioara, mijloc - 1);
+            if (decimalPart.Length > 0)
+            {
+                if (remainderPositions.ContainsKey(remainder))
+                {
+                    int repeatStart = remainderPositions[remainder];
+                    string nonRepeatingPart = decimalPart.ToString().Substring(0, repeatStart);
+                    string repeatingPart = decimalPart.ToString().Substring(repeatStart);
+
+                    result += nonRepeatingPart + "(" + repeatingPart + ")";
+                }
+                else
+                {
+                    result += decimalPart.ToString();
+                }
+            }
+
+            return result;
+        }
+
+        static string DetermineFractionType(int n)
+        {
+            if (IsNonRepeatingFraction(n))
+            {
+                return "Neperiodica";
+            }
+            else if (IsSimpleRepeatingFraction(n))
+            {
+                return "Periodica Simpla";
             }
             else
             {
-                Console.WriteLine("Raspuns invalid. Te rog sa raspunzi cu 'da' sau 'nu'.");
-                return GhicesteNumarul(limitaInferioara, limitaSuperioara);
+                return "Periodica Mixta";
             }
+        }
+
+        static bool IsNonRepeatingFraction(int n)
+        {
+            return n % 2 == 0 || n % 5 == 0;
+        }
+
+        static bool IsSimpleRepeatingFraction(int n)
+        {
+            return !IsNonRepeatingFraction(n);
         }
     }
 }
